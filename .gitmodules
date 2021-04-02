@@ -1,0 +1,3 @@
+[submodule "src/Onboard-SDK-ROS"]
+	path = src/Onboard-SDK-ROS
+	url = https://github.com/dji-sdk/Onboard-SDK-ROS.git

@@ -1,24 +1,14 @@
 <launch>
-	<arg name="fcu_url" default="udp://127.0.0.1:14551@14555" />
-	<arg name="gcs_url" default="" />
-	<arg name="tgt_system" default="1" />
-	<arg name="tgt_component" default="1" />
-	<arg name="log_output" default="screen" />
-	<arg name="fcu_protocol" default="v2.0" />
-	<arg name="respawn_mavros" default="true" />
-	<arg name="namespace" default="drone" />
-	<group ns="$(arg namespace)">
-	    <include file="$(find mavros)/launch/node.launch">
-		    <arg name="pluginlists_yaml" value="$(find mavros)/launch/apm_pluginlists.yaml" />
-		    <arg name="config_yaml" value="$(find mavros)/launch/apm_config.yaml" />
-
-		    <arg name="fcu_url" value="$(arg fcu_url)" />
-		    <arg name="gcs_url" value="$(arg gcs_url)" />
-		    <arg name="tgt_system" value="$(arg tgt_system)" />
-		    <arg name="tgt_component" value="$(arg tgt_component)" />
-		    <arg name="log_output" value="$(arg log_output)" />
-		    <arg name="fcu_protocol" value="$(arg fcu_protocol)" />
-		    <arg name="respawn_mavros" value="$(arg respawn_mavros)" />
-	    </include>
-	</group>
+    <node pkg="dji_osdk_ros" type="dji_sdk_node" name="dji_sdk" output="screen">
+    <!-- node parameters -->
+    <param name="acm_name" type="string" value="/dev/ttyACM0"/>
+    <param name="serial_name" type="string" value="/dev/ttyUSB0"/>
+    <param name="baud_rate" type="int" value="921600"/>
+    <param name="app_id" type="int" value= "12345"/>
+    <param name="app_version" type="int" value="1"/>
+    <param name="align_time" type="bool" value="false"/>
+    <param name="enc_key" type="string" value="abc123"/>
+    <param name="use_broadcast" type="bool" value="false"/>
+    <param name="dxc" type="bool" value="false"/>
+    </node>
 </launch>
