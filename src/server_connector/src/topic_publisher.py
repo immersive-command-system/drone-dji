@@ -2,6 +2,11 @@
 import rospy
 import roslibpy
 from std_srvs.srv import Trigger
+from sensor_msgs.msg import NavSatFix
+from dji_sdk.srv import MissionWpSetSpeed
+from dji_sdk.srv import MissionWpGetSpeed
+from dji_sdk.srv import MissionWpAction
+from dji_sdk.srv import DroneTaskControl
 
 class TopicPublisher:
 
@@ -14,8 +19,18 @@ class TopicPublisher:
         self.advertise_basic_services_topics()
 
     def advertise_basic_services_topics(self):
-        self.advertise_service('/shutdown', 'std_srvs/Trigger'
-                               , self.shutdown, include_namespace=True)
+        self.advertise_service('/dji_sdk/mission_waypoint_setSpeed', 'dji_sdk/MissionWpSetSpeed',
+                               self.set_speed, include_namespace=True)
+        self.advertise_service('/dji_sdk/mission_waypoint_getSpeed', 'dji_sdk/MissionWpGetSpeed',
+                               self.get_speed, include_namespace=True)
+        self.advertise_service('/dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction',
+                               self.mission_waypoint_action, include_namespace=True)
+        self.advertise_service('/dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl',
+                               self.drone_task_control, include_namespace=True)
+        self.publish_topic('/dji_sdk/gps_position', 'sensor_msgs/NavSatFix', NavSatFix
+                           , self.gps_publisher, include_namespace=True)
+        self.advertise_service('/shutdown', 'std_srvs/Trigger',
+                               self.shutdown, include_namespace=True)
 
     def get_topics(self):
         return rospy.get_published_topics(self.namespace)
@@ -41,11 +56,17 @@ class TopicPublisher:
         rospy.Subscriber(topic_name, topic_type_class, publish)
 
     # ALL PUBLISHERS
+    def gps_publisher(self, publisher, data):
+        publisher.publish({'latitude': data.latitude, 'longitude': data.longitude, 'altitude': data.altitude})
+
+        # DONE FOR TAKEOFF LOCATION
+        self.location = data
 
     # ALL SERVICE CALLBACKS
     def set_speed(self, request, response):
         rospy.loginfo(request)
-        set_speed_service = rospy.ServiceProxy(self.namespace + '/dji_sdk/mission_waypoint_setSpeed', MissionWpSetSpeed)
+        set_speed_service = rospy.ServiceProxy(self.namespace + '/dji_sdk/mission_waypoint_setSpeed',
+                                               MissionWpSetSpeed)
         local_response = set_speed_service(request.get('basic_mode'), request.get('custom_mode'))
         response['mode_sent'] = local_response.mode_sent
         rospy.loginfo(local_response.mode_sent)
@@ -53,11 +74,28 @@ class TopicPublisher:
 
     def get_speed(self, request, response):
         rospy.loginfo(request)
-        get_speed_service = rospy.ServiceProxy(self.namespace + '/dji_sdk/mission_waypoint_getSpeed', MissionWpGetSpeed)
+        get_speed_service = rospy.ServiceProxy(self.namespace + '/dji_sdk/mission_waypoint_getSpeed',
+                                               MissionWpGetSpeed)
         local_response = get_speed_service(request.get('basic_mode'), request.get('custom_mode'))
         response['mode_sent'] = local_response.mode_sent
         rospy.loginfo(local_response.mode_sent)
         return True
+
+    def mission_waypoint_action(self, request, response):
+        rospy.loginfo(request)
+        mission_waypoint_action_service = rospy.ServiceProxy(self.namespace + '/dji_sdk/mission_waypoint_action',
+                                                             MissionWpAction)
+        local_response = mission_waypoint_action_service(request.get('basic_mode'), request.get('custom_mode'))
+        response['mode_sent'] = local_response.mode_sent
+        rospy.loginfo(local_response.mode_sent)
+        return True
+
+    def drone_task_control(self, request, response):
+        rospy.loginfo(request)
+        drone_task_control_service = rospy.ServiceProxy(self.namespace + '/dji_sdk/drone_task_control',
+                                                        DroneTaskControl)
+        local_response = drone_task_control_service(request.get('basic_mode'), request.get('custom_mode'))
+        response['mode_sent'] = local_response.mode_sent
 
     def shutdown(self, request, response):
         rospy.loginfo(request)

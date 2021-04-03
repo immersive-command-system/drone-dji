@@ -5,6 +5,8 @@ import roslaunch
 import os
 from topic_publisher import TopicPublisher
 from std_msgs.msg import UInt8
+from std_srvs.srv import Trigger
+
 
 class ConnectionManager:
 
