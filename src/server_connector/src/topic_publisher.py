@@ -67,35 +67,36 @@ class TopicPublisher:
         rospy.loginfo(request)
         set_speed_service = rospy.ServiceProxy(self.namespace + '/dji_sdk/mission_waypoint_setSpeed',
                                                MissionWpSetSpeed)
-        local_response = set_speed_service(request.get('basic_mode'), request.get('custom_mode'))
-        response['mode_sent'] = local_response.mode_sent
-        rospy.loginfo(local_response.mode_sent)
+        local_response = set_speed_service(request.get('speed'))
+        response['result'] = local_response.result
+        rospy.loginfo(local_response.result)
         return True
 
     def get_speed(self, request, response):
         rospy.loginfo(request)
         get_speed_service = rospy.ServiceProxy(self.namespace + '/dji_sdk/mission_waypoint_getSpeed',
                                                MissionWpGetSpeed)
-        local_response = get_speed_service(request.get('basic_mode'), request.get('custom_mode'))
-        response['mode_sent'] = local_response.mode_sent
-        rospy.loginfo(local_response.mode_sent)
+        local_response = get_speed_service()
+        response['speed'] = local_response.speed
+        rospy.loginfo(local_response.speed)
         return True
 
     def mission_waypoint_action(self, request, response):
         rospy.loginfo(request)
         mission_waypoint_action_service = rospy.ServiceProxy(self.namespace + '/dji_sdk/mission_waypoint_action',
                                                              MissionWpAction)
-        local_response = mission_waypoint_action_service(request.get('basic_mode'), request.get('custom_mode'))
-        response['mode_sent'] = local_response.mode_sent
-        rospy.loginfo(local_response.mode_sent)
+        local_response = mission_waypoint_action_service(request.get('action'))
+        response['result'] = local_response.result
+        rospy.loginfo(local_response.result)
         return True
 
     def drone_task_control(self, request, response):
         rospy.loginfo(request)
         drone_task_control_service = rospy.ServiceProxy(self.namespace + '/dji_sdk/drone_task_control',
                                                         DroneTaskControl)
-        local_response = drone_task_control_service(request.get('basic_mode'), request.get('custom_mode'))
-        response['mode_sent'] = local_response.mode_sent
+        local_response = drone_task_control_service(request.get('task'))
+        response['result'] = local_response.result
+        return True
 
     def shutdown(self, request, response):
         rospy.loginfo(request)
