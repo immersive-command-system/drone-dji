@@ -7,6 +7,8 @@ from dji_sdk.srv import MissionWpSetSpeed
 from dji_sdk.srv import MissionWpGetSpeed
 from dji_sdk.srv import MissionWpAction
 from dji_sdk.srv import DroneTaskControl
+from dji_sdk.msgs import MissionWaypointTask
+from dji_sdk.msgs import MissionWaypoint
 
 class TopicPublisher:
 
@@ -29,6 +31,8 @@ class TopicPublisher:
                                self.drone_task_control, include_namespace=True)
         self.publish_topic('/dji_sdk/gps_position', 'sensor_msgs/NavSatFix', NavSatFix
                            , self.gps_publisher, include_namespace=True)
+        self.advertise_service('/dji_sdk/mission_waypoint_upload', 'dji_sdk/MissionWpUpload',
+                               self.mission_waypoint_upload, include_namespace=True)
         self.advertise_service('/shutdown', 'std_srvs/Trigger',
                                self.shutdown, include_namespace=True)
 
@@ -63,6 +67,39 @@ class TopicPublisher:
         self.location = data
 
     # ALL SERVICE CALLBACKS
+    def mission_waypoint_upload(self, request, response):
+        rospy.loginfo(request)
+        mission_upload_service = rospy.ServiceProxy(self.namespace + '/dji_sdk/mission_waypoint_upload', MissionWpUpload)
+        waypoint_task = MissionWaypointTask()
+        waypoints = []
+        for waypoint in request.get('waypoints'):
+            new_waypoint = MissionWaypoint()
+            new_waypoint.latitude = waypoint.get('latitude')
+            new_waypoint.longitude = waypoint.get('longitude')
+            new_waypoint.altitude = waypoint.get('altitude')
+            new_waypoint.damping_distance = waypoint.get('damping_distance')
+            new_waypoint.target_yaw = waypoint.get('target_yaw')
+            new_waypoint.target_gimbal_pitch = waypoint.get('target_gimbal_pitch')
+            new_waypoint.turn_mode = waypoint.get('turn_mode')
+            new_waypoint.has_action = waypoint.get('has_action')
+            new_waypoint.time_limit = waypoint.get('time_limit')
+            new_waypoint.waypoint_action = waypoint.get('waypoint_action')
+            waypoints.append(new_waypoint)
+        rospy.loginfo(waypoints)
+        waypoint_task.velocity_range = request.get('velocity_range')
+        waypoint_task.idle_velocity = request.get('idle_velocity')
+        waypoint_task.action_on_finish = request.get('action_on_finish')
+        waypoint_task.mission_exec_times = request.get('mission_exec_times')
+        waypoint_task.yaw_mode = request.get('yaw_mode')
+        waypoint_task.trace_mode = request.get('trace_mode')
+        waypoint_task.action_on_rc_lost = request.get('action_on_rc_lost')
+        waypoint_task.gimbal_pitch_mode = request.get('gimbal_pitch_mode')
+        waypoint_task.mission_waypoint = waypoints
+        local_response = mission_upload_service(waypoint_task)
+        response['result'] = local_response.result
+        rospy.loginfo(local_response.result)
+        return local_response.result
+
     def set_speed(self, request, response):
         rospy.loginfo(request)
         set_speed_service = rospy.ServiceProxy(self.namespace + '/dji_sdk/mission_waypoint_setSpeed',
