@@ -67,6 +67,7 @@ class ConnectionManager:
     def check_connection(self):
         if self.persist_connection:
             if not self.server_connection.is_connected:
+                print('DISCONNECTED!')
                 self.attempt_connection()
 
     def stop_connection(self):

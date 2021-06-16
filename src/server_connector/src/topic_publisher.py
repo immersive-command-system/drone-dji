@@ -7,8 +7,8 @@ from dji_sdk.srv import MissionWpSetSpeed
 from dji_sdk.srv import MissionWpGetSpeed
 from dji_sdk.srv import MissionWpAction
 from dji_sdk.srv import DroneTaskControl
-from dji_sdk.msgs import MissionWaypointTask
-from dji_sdk.msgs import MissionWaypoint
+from dji_sdk.msg import MissionWaypointTask
+from dji_sdk.msg import MissionWaypoint
 
 class TopicPublisher:
 
