@@ -32,7 +32,6 @@ class ConnectionManager:
 
     def launch_dji_sdk(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        print(dir_path)
         new_path = os.path.join(dir_path, '../launch/drone.launch')
         rospy.loginfo(new_path)
         uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
