@@ -36,9 +36,11 @@ class ConnectionManager:
         rospy.loginfo(new_path)
         uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         roslaunch.configure_logging(uuid)
-        roslaunch_file = [(new_path,
-                           ['namespace:=' + self.namespace])]
-        parent = roslaunch.parent.ROSLaunchParent(uuid, roslaunch_file)
+        cli_args = ['server_connector', 'drone.launch', 'namespace:=' + self.namespace]
+        roslaunch_file = roslaunch.rlutil.resolve_launch_arguments(cli_args)[0]
+        roslaunch_args = cli_args[2:]
+        launch_files = [(roslaunch_file, roslaunch_args)]
+        parent = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
         parent.start()
 
     def attempt_connection(self):
