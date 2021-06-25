@@ -6,7 +6,7 @@ import os
 from topic_publisher import TopicPublisher
 from std_msgs.msg import UInt8
 from std_srvs.srv import Trigger
-
+from dji_sdk.srv import SDKControlAuthority
 
 class ConnectionManager:
 
@@ -61,6 +61,12 @@ class ConnectionManager:
 
                 # Starts Listening in For The Drone State (To Determine if Shutdowns are OK)
                 rospy.Subscriber(self.namespace + '/dji_sdk/flight_status', UInt8, self.state_subscriber_callback)
+
+                #Attempts to get authority to be able to control the drone
+                authorization_service = rospy.ServiceProxy(self.namespace + '/dji_sdk/sdk_control_authority',
+                                                           SDKControlAuthority)
+                authorization_service(1)
+
 
     def state_subscriber_callback(self, data):
         self.flight_status = data
