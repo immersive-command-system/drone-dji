@@ -9,6 +9,7 @@ from dji_sdk.srv import MissionWpAction
 from dji_sdk.srv import DroneTaskControl
 from dji_sdk.msg import MissionWaypointTask
 from dji_sdk.msg import MissionWaypoint
+from dji_sdk.srv import MissionWpUpload
 
 class TopicPublisher:
 
@@ -72,7 +73,8 @@ class TopicPublisher:
         mission_upload_service = rospy.ServiceProxy(self.namespace + '/dji_sdk/mission_waypoint_upload', MissionWpUpload)
         waypoint_task = MissionWaypointTask()
         waypoints = []
-        for waypoint in request.get('waypoints'):
+        request_waypoint_task = request.get('waypoint_task')
+        for waypoint in request_waypoint_task.get('mission_waypoint'):
             new_waypoint = MissionWaypoint()
             new_waypoint.latitude = waypoint.get('latitude')
             new_waypoint.longitude = waypoint.get('longitude')
@@ -80,20 +82,16 @@ class TopicPublisher:
             new_waypoint.damping_distance = waypoint.get('damping_distance')
             new_waypoint.target_yaw = waypoint.get('target_yaw')
             new_waypoint.target_gimbal_pitch = waypoint.get('target_gimbal_pitch')
-            new_waypoint.turn_mode = waypoint.get('turn_mode')
-            new_waypoint.has_action = waypoint.get('has_action')
-            new_waypoint.time_limit = waypoint.get('time_limit')
-            new_waypoint.waypoint_action = waypoint.get('waypoint_action')
             waypoints.append(new_waypoint)
         rospy.loginfo(waypoints)
-        waypoint_task.velocity_range = request.get('velocity_range')
-        waypoint_task.idle_velocity = request.get('idle_velocity')
-        waypoint_task.action_on_finish = request.get('action_on_finish')
-        waypoint_task.mission_exec_times = request.get('mission_exec_times')
-        waypoint_task.yaw_mode = request.get('yaw_mode')
-        waypoint_task.trace_mode = request.get('trace_mode')
-        waypoint_task.action_on_rc_lost = request.get('action_on_rc_lost')
-        waypoint_task.gimbal_pitch_mode = request.get('gimbal_pitch_mode')
+        waypoint_task.velocity_range = request_waypoint_task.get('velocity_range')
+        waypoint_task.idle_velocity = request_waypoint_task.get('idle_velocity')
+        waypoint_task.action_on_finish = request_waypoint_task.get('action_on_finish')
+        waypoint_task.mission_exec_times = request_waypoint_task.get('mission_exec_times')
+        waypoint_task.yaw_mode = request_waypoint_task.get('yaw_mode')
+        waypoint_task.trace_mode = request_waypoint_task.get('trace_mode')
+        waypoint_task.action_on_rc_lost = request_waypoint_task.get('action_on_rc_lost')
+        waypoint_task.gimbal_pitch_mode = request_waypoint_task.get('gimbal_pitch_mode')
         waypoint_task.mission_waypoint = waypoints
         local_response = mission_upload_service(waypoint_task)
         response['result'] = local_response.result

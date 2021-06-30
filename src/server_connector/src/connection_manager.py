@@ -63,6 +63,7 @@ class ConnectionManager:
                 rospy.Subscriber(self.namespace + '/dji_sdk/flight_status', UInt8, self.state_subscriber_callback)
 
                 #Attempts to get authority to be able to control the drone
+                rospy.wait_for_service(self.namespace + '/dji_sdk/sdk_control_authority')
                 authorization_service = rospy.ServiceProxy(self.namespace + '/dji_sdk/sdk_control_authority',
                                                            SDKControlAuthority)
                 authorization_service(1)
